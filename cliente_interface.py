@@ -3,14 +3,16 @@ from tkinter import messagebox, scrolledtext
 
 
 class JanelaConversa:
-    def __init__(self, janela_principal, rede, destinatario, dados_destino):
+    def __init__(self, janela_principal, rede, destinatario, dados_destino, interface):
         self.rede = rede
         self.destinatario = destinatario
         self.dados_destino = dados_destino
+        self.interface = interface
 
         self.janela = tk.Toplevel(janela_principal)
         self.janela.title(f"Conversa com {destinatario}")
         self.janela.geometry("400x400")
+        self.janela.protocol("WM_DELETE_WINDOW", self.ao_fechar)
 
         self.area = scrolledtext.ScrolledText(self.janela, state="disabled")
         self.area.pack(fill="both", expand=True)
@@ -48,6 +50,11 @@ class JanelaConversa:
         self.area.insert(tk.END, f"[{remetente}]: {texto}\n")
         self.area.config(state="disabled")
         self.area.see(tk.END)
+
+    def ao_fechar(self):
+        if self.destinatario in self.interface.conversas_abertas:
+            del self.interface.conversas_abertas[self.destinatario]
+        self.janela.destroy()
 
 
 class InterfaceChat:
@@ -125,11 +132,12 @@ class InterfaceChat:
 
         if destinatario not in self.conversas_abertas:
             self.conversas_abertas[destinatario] = JanelaConversa(
-                self.janela,
-                self.rede,
-                destinatario,
-                dados
-            )
+            self.janela,
+            self.rede,
+            destinatario,
+            dados,
+            self
+        )
 
     def mensagem_recebida(self, remetente, texto):
         self.janela.after(0, self._abrir_ou_exibir, remetente, texto)
@@ -142,7 +150,8 @@ class InterfaceChat:
                     self.janela,
                     self.rede,
                     remetente,
-                    dados
+                    dados,
+                    self
                 )
 
         if remetente in self.conversas_abertas:

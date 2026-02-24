@@ -2,7 +2,7 @@ import tkinter as tk
 from cliente_rede import ClienteRede
 from cliente_interface import InterfaceChat
 
-IP_SERVIDOR = "192.168.1.222"
+IP_SERVIDOR = "10.144.169.139"
 PORTA_SERVIDOR = 9000
 
 if __name__ == "__main__":
